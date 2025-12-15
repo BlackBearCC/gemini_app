@@ -8,22 +8,22 @@ interface Props {
 }
 
 const ProfileInterface: React.FC<Props> = ({ stats }) => {
-  const totalLikes = Object.values(stats).reduce((a, b) => a + b, 0);
+  const totalLikes = (Object.values(stats) as number[]).reduce((a, b) => a + b, 0);
 
   // Helper to calculate percentage width
   const getPct = (val: number) => {
     if (totalLikes === 0) return 50; // Default middle
     // Normalize somewhat
-    const max = Math.max(...Object.values(stats));
+    const max = Math.max(...(Object.values(stats) as number[]));
     if (max === 0) return 0;
     return (val / max) * 100;
   };
 
   const pairs = [
-    { left: 'E', right: 'I', leftId: RoleId.SPARK, rightId: RoleId.ECHO, label: 'Energy' },
-    { left: 'N', right: 'S', leftId: RoleId.VISION, rightId: RoleId.ROOT, label: 'Info' },
-    { left: 'T', right: 'F', leftId: RoleId.LOGIC, rightId: RoleId.HEART, label: 'Decision' },
-    { left: 'J', right: 'P', leftId: RoleId.JUDGE, rightId: RoleId.FLOW, label: 'Structure' },
+    { left: 'E', right: 'I', leftId: RoleId.SPARK, rightId: RoleId.ECHO, label: '能量' },
+    { left: 'N', right: 'S', leftId: RoleId.VISION, rightId: RoleId.ROOT, label: '信息' },
+    { left: 'T', right: 'F', leftId: RoleId.LOGIC, rightId: RoleId.HEART, label: '决策' },
+    { left: 'J', right: 'P', leftId: RoleId.JUDGE, rightId: RoleId.FLOW, label: '结构' },
   ];
 
   return (
@@ -33,7 +33,7 @@ const ProfileInterface: React.FC<Props> = ({ stats }) => {
                 🧬
              </div>
              <h2 className="text-2xl font-bold text-white tracking-widest">PSYCHE_MAP</h2>
-             <p className="text-xs text-gray-500 mt-1">Analysis based on {totalLikes} resonance points</p>
+             <p className="text-xs text-gray-500 mt-1">基于 {totalLikes} 次共鸣点数分析</p>
         </div>
 
         <div className="space-y-10">
@@ -46,6 +46,7 @@ const ProfileInterface: React.FC<Props> = ({ stats }) => {
                 const leftChar = CHARACTERS[pair.leftId];
                 const rightChar = CHARACTERS[pair.rightId];
 
+                // Safe check
                 if (!leftChar || !rightChar) return null;
                 
                 const leftColorBg = (leftChar.color || '').split(' ')[0].replace('text', 'bg');
@@ -89,9 +90,9 @@ const ProfileInterface: React.FC<Props> = ({ stats }) => {
         </div>
         
         <div className="mt-12 p-4 bg-gray-900/50 rounded-lg border border-gray-800">
-            <h3 className="text-sm font-bold text-gray-300 mb-2">SYSTEM NOTE</h3>
+            <h3 className="text-sm font-bold text-gray-300 mb-2">系统提示</h3>
             <p className="text-xs text-gray-500 leading-relaxed">
-                Your interactions recalibrate the internal model. Liking a response reinforces that dimension's dominance in your psyche. Continue data entry for higher precision.
+                你的互动正在重塑内部模型。点赞某个人格的发言会增强该维度的权重。请继续输入数据以提高精准度。
             </p>
         </div>
     </div>

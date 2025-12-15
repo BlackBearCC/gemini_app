@@ -42,7 +42,7 @@ const JournalInterface: React.FC<Props> = ({ entries, addEntry }) => {
         setText('');
         setViewMode('list');
     } catch (e) {
-        alert("Failed to save entry. Try again.");
+        alert("保存失败，请重试。");
     } finally {
         setIsAnalyzing(false);
     }
@@ -58,7 +58,7 @@ const JournalInterface: React.FC<Props> = ({ entries, addEntry }) => {
             onClick={() => setViewMode(viewMode === 'list' ? 'write' : 'list')}
             className="px-4 py-1.5 text-xs font-mono border border-neon-green text-neon-green rounded hover:bg-neon-green/10 transition-colors"
         >
-            {viewMode === 'list' ? '+ RECORD' : 'CANCEL'}
+            {viewMode === 'list' ? '+ 记录' : '取消'}
         </button>
       </div>
 
@@ -66,7 +66,7 @@ const JournalInterface: React.FC<Props> = ({ entries, addEntry }) => {
         <div className="space-y-4 animate-pulse-fast-once">
             <textarea
                 className="w-full h-60 bg-card border border-gray-800 rounded-lg p-4 text-gray-300 focus:outline-none focus:border-gray-600 resize-none placeholder-gray-700"
-                placeholder="Log today's events for linear processing..."
+                placeholder="记录今天的碎片..."
                 value={text}
                 onChange={(e) => setText(e.target.value)}
             />
@@ -75,13 +75,13 @@ const JournalInterface: React.FC<Props> = ({ entries, addEntry }) => {
                 disabled={isAnalyzing || !text.trim()}
                 className="w-full py-3 bg-gray-100 text-black font-bold rounded hover:bg-gray-300 transition-colors disabled:opacity-50"
             >
-                {isAnalyzing ? 'PROCESSING DATA...' : 'SAVE ENTRY'}
+                {isAnalyzing ? '正在处理数据...' : '保存记忆'}
             </button>
         </div>
       ) : (
         <div className="relative border-l border-gray-800 ml-4 space-y-8">
             {entries.length === 0 && (
-                <div className="ml-6 text-gray-600 italic text-sm">No memory logs found.</div>
+                <div className="ml-6 text-gray-600 italic text-sm">暂无记忆日志。</div>
             )}
             
             {entries.sort((a,b) => b.timestamp - a.timestamp).map(entry => (
@@ -92,7 +92,7 @@ const JournalInterface: React.FC<Props> = ({ entries, addEntry }) => {
                     <div className="flex flex-col space-y-2">
                         <div className="flex justify-between items-baseline">
                             <span className="text-xs font-mono text-gray-500">
-                                {new Date(entry.timestamp).toLocaleDateString()} • {new Date(entry.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                {new Date(entry.timestamp).toLocaleDateString('zh-CN')} • {new Date(entry.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                             </span>
                             <span className="text-xs px-2 py-0.5 rounded bg-gray-900 text-gray-400 border border-gray-800">
                                 {entry.mood}

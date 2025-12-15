@@ -17,25 +17,39 @@ const App: React.FC = () => {
 
   // Load from local storage on mount
   useEffect(() => {
-    const savedStats = localStorage.getItem('mind0_stats');
-    const savedMsgs = localStorage.getItem('mind0_msgs');
-    const savedEntries = localStorage.getItem('mind0_entries');
-    const onboardingDone = localStorage.getItem('mind0_onboarding_done');
+    try {
+        const savedStats = localStorage.getItem('mind0_stats');
+        const savedMsgs = localStorage.getItem('mind0_msgs');
+        const savedEntries = localStorage.getItem('mind0_entries');
+        const onboardingDone = localStorage.getItem('mind0_onboarding_done');
 
-    if (savedStats) setStats(JSON.parse(savedStats));
-    if (savedMsgs) setMessages(JSON.parse(savedMsgs));
-    if (savedEntries) setEntries(JSON.parse(savedEntries));
-    
-    if (!onboardingDone) {
-      setShowOnboarding(true);
+        if (savedStats) {
+            try { setStats(JSON.parse(savedStats)); } catch (e) { console.error("Failed to parse stats", e); }
+        }
+        if (savedMsgs) {
+            try { setMessages(JSON.parse(savedMsgs)); } catch (e) { console.error("Failed to parse msgs", e); }
+        }
+        if (savedEntries) {
+             try { setEntries(JSON.parse(savedEntries)); } catch (e) { console.error("Failed to parse entries", e); }
+        }
+        
+        if (!onboardingDone) {
+          setShowOnboarding(true);
+        }
+    } catch (e) {
+        console.error("Storage access error", e);
     }
   }, []);
 
   // Save to local storage on change
   useEffect(() => {
-    localStorage.setItem('mind0_stats', JSON.stringify(stats));
-    localStorage.setItem('mind0_msgs', JSON.stringify(messages));
-    localStorage.setItem('mind0_entries', JSON.stringify(entries));
+    try {
+        localStorage.setItem('mind0_stats', JSON.stringify(stats));
+        localStorage.setItem('mind0_msgs', JSON.stringify(messages));
+        localStorage.setItem('mind0_entries', JSON.stringify(entries));
+    } catch (e) {
+        console.error("Failed to save to localStorage", e);
+    }
   }, [stats, messages, entries]);
 
   const handleOnboardingComplete = () => {
@@ -104,19 +118,19 @@ const App: React.FC = () => {
             active={view === AppView.CHAT} 
             onClick={() => setView(AppView.CHAT)} 
             icon="💬" 
-            label="Chat" 
+            label="群聊" 
         />
         <NavButton 
             active={view === AppView.JOURNAL} 
             onClick={() => setView(AppView.JOURNAL)} 
             icon="📓" 
-            label="Log" 
+            label="日志" 
         />
         <NavButton 
             active={view === AppView.PROFILE} 
             onClick={() => setView(AppView.PROFILE)} 
             icon="🧬" 
-            label="Core" 
+            label="核心" 
         />
       </nav>
     </div>

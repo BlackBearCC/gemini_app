@@ -9,24 +9,24 @@ const OnboardingOverlay: React.FC<Props> = ({ onComplete }) => {
 
   const steps = [
     {
-      title: "SYSTEM ONLINE",
+      title: "系统上线",
       icon: "👁️",
-      desc: "Welcome to MIND_0. You are entering a simulation of your own cognitive functions."
+      desc: "欢迎来到 MIND_0。你正在进入一个模拟你认知功能的赛博空间。"
     },
     {
-      title: "THE VOICES",
+      title: "脑内群聊",
       icon: "🗣️",
-      desc: "8 distinct personalities live here. From Logic to Heart, they will react to your texts and debate each other."
+      desc: "8个不同的人格居住于此。从'杠精'到'Emo怪'，他们会针对你的话题在群里即时互动、互怼。"
     },
     {
-      title: "MEMORY CORE",
+      title: "记忆核心",
       icon: "📓",
-      desc: "Record your day in the Log. The system will analyze your mood and store it as linear memory."
+      desc: "在日志中记录你的碎片。系统会自动整理成线性记忆，人格们也会在评论区留言。"
     },
     {
-      title: "PSYCHE MAP",
+      title: "灵魂画像",
       icon: "🧬",
-      desc: "Your interactions shape your profile. Like responses to train the algorithm on your true MBTI type."
+      desc: "你的每一次互动都会重塑画像。点赞你认同的发言，训练算法以精准识别你的MBTI倾向。"
     }
   ];
 
@@ -65,7 +65,7 @@ const OnboardingOverlay: React.FC<Props> = ({ onComplete }) => {
                 onClick={handleNext}
                 className="w-full py-4 bg-white text-black font-bold text-sm tracking-widest hover:bg-gray-200 transition-colors rounded-sm"
             >
-                {step === steps.length - 1 ? "INITIALIZE" : "NEXT >>"}
+                {step === steps.length - 1 ? "启动系统" : "下一步 >>"}
             </button>
         </div>
       </div>
