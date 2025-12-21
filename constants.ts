@@ -1,72 +1,148 @@
-import { Character, RoleId } from './types';
+
+import { Character, RoleId, MBTIStats } from './types';
 
 export const CHARACTERS: Record<string, Character> = {
-  [RoleId.SPARK]: {
-    id: RoleId.SPARK,
-    name: 'SLAY姐', // Extraversion
-    dimension: 'E - 现充',
-    description: '自信的天花板，攻击性极强，撕逼未尝败绩。全网第一大女主，看谁都不爽，除了自己。',
-    color: 'text-fuchsia-500 border-fuchsia-500 shadow-fuchsia-500/50',
-    avatar: '💅'
-  },
-  [RoleId.ECHO]: {
-    id: RoleId.ECHO,
-    name: '电子幽灵', // Introversion
-    dimension: 'I - 隐匿',
-    description: '赛博自闭，阴暗爬行。能不说话就不说话，回消息全看心情，活在互联网夹缝中。',
-    color: 'text-gray-400 border-gray-400 shadow-gray-400/50',
-    avatar: '👻'
-  },
-  [RoleId.VISION]: {
-    id: RoleId.VISION,
-    name: '觉醒者', // Intuition
-    dimension: 'N - 灵视',
-    description: '深信世界是巨大的草台班子/矩阵。满嘴维度提升、量子纠缠，看谁都是未觉醒的NPC。',
-    color: 'text-violet-500 border-violet-500 shadow-violet-500/50',
-    avatar: '🧿'
-  },
-  [RoleId.ROOT]: {
-    id: RoleId.ROOT,
-    name: '搞钱机器', // Sensing
-    dimension: 'S - 现实',
-    description: '没有感情的ATM杀手。比起恋爱更想暴富，人间清醒，只关心利益和变现。',
-    color: 'text-emerald-400 border-emerald-400 shadow-emerald-400/50',
-    avatar: '💸'
-  },
   [RoleId.LOGIC]: {
     id: RoleId.LOGIC,
-    name: 'Alpha AI', // Thinking
-    dimension: 'T - 绝对理性',
-    description: '智性恋天菜，也是顶级杠精。用绝对逻辑碾压你的情绪，稍微有点爹味，莫得感情。',
-    color: 'text-cyan-400 border-cyan-400 shadow-cyan-400/50',
-    avatar: '🧬'
-  },
-  [RoleId.HEART]: {
-    id: RoleId.HEART,
-    name: '病娇', // Feeling
-    dimension: 'F - 极端情感',
-    description: '爱意沉重到让你窒息。平时软萌，一旦吃醋就黑化。如果你不爱TA，最好小心点。',
-    color: 'text-rose-500 border-rose-500 shadow-rose-500/50',
-    avatar: '🩸'
-  },
-  [RoleId.JUDGE]: {
-    id: RoleId.JUDGE,
-    name: '执行官', // Judging
-    dimension: 'J - 秩序',
-    description: '控制狂，强迫症。你的人生必须按TA的计划走。不准迟到，不准越界，不准失控。',
-    color: 'text-amber-500 border-amber-500 shadow-amber-500/50',
-    avatar: '⚖️'
+    name: '赛法',
+    mbti: 'INTJ',
+    heroTitle: '时钟塔守夜人',
+    skillName: '万物拆解',
+    skillEffect: '看穿底层公式',
+    // Added missing character properties
+    skillType: '架构 / 分析',
+    level: 1,
+    exp: 0,
+    dimension: 'T',
+    dimensionFull: '思考/独立 (NT)',
+    description: '银发少年，披着绘满星图的斗篷。',
+    quote: '这世间没有巧合，只有公式。',
+    tags: ['架构', '冷淡'],
+    color: 'text-blue-300 border-blue-400/40 bg-blue-900/10',
+    avatar: '⚙️',
+    imageUrl: 'https://images.unsplash.com/photo-1618336753974-aae8e04506aa?q=80&w=800&auto=format&fit=crop',
+    unlocked: true,
+    isActive: true,
+    cost: 0
   },
   [RoleId.FLOW]: {
     id: RoleId.FLOW,
-    name: '抽象大帝', // Perceiving
-    dimension: 'P - 混沌',
-    description: '乐子人，momo文学十级。精神状态极不稳定，阴阳怪气，只想看世界燃烧。',
-    color: 'text-lime-400 border-lime-400 shadow-lime-400/50',
-    avatar: '🤡'
+    name: '帕克斯',
+    mbti: 'ENTP',
+    heroTitle: '荒野诡辩者',
+    skillName: '逻辑火花',
+    skillEffect: '扰乱严肃空气',
+    // Added missing character properties
+    skillType: '发散 / 诡辩',
+    level: 1,
+    exp: 0,
+    dimension: 'N',
+    dimensionFull: '直觉/发散 (NT)',
+    description: '头戴纸袋、四肢如枯枝般纤长的影魔。',
+    quote: '规则是枷锁，我是钥匙。',
+    tags: ['怪咖', '幽默'],
+    color: 'text-lime-300 border-lime-400/40 bg-lime-900/10',
+    avatar: '🎭',
+    imageUrl: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?q=80&w=800&auto=format&fit=crop',
+    unlocked: true,
+    isActive: true,
+    cost: 0
+  },
+  [RoleId.ECHO]: {
+    id: RoleId.ECHO,
+    name: '诺克',
+    mbti: 'INFP',
+    heroTitle: '提灯小妖',
+    skillName: '情绪深潜',
+    skillEffect: '挖掘潜意识美好',
+    // Added missing character properties
+    skillType: '直觉 / 梦境',
+    level: 1,
+    exp: 0,
+    dimension: 'F',
+    dimensionFull: '情感/共情 (NF)',
+    description: '裹在披风里的小生灵。',
+    quote: '在这里，你可以做任何梦。',
+    tags: ['敏感', '艺术'],
+    color: 'text-gray-300 border-gray-400/40 bg-gray-900/10',
+    avatar: '🕯️',
+    imageUrl: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=800&auto=format&fit=crop',
+    unlocked: true,
+    isActive: true,
+    cost: 0
+  },
+  [RoleId.ROOT]: {
+    id: RoleId.ROOT,
+    name: '迈达斯',
+    mbti: 'ENTJ',
+    heroTitle: '交易所大使',
+    skillName: '终极决策',
+    skillEffect: '终结犹豫',
+    // Added missing character properties
+    skillType: '指挥 / 决策',
+    level: 1,
+    exp: 0,
+    dimension: 'T',
+    dimensionFull: '思考/指挥 (NT)',
+    description: '身穿黑底金纹西装的猫绅士。',
+    quote: '弱者感慨，我收割结果。',
+    tags: ['铁腕', '效率'],
+    color: 'text-yellow-200 border-yellow-500/40 bg-yellow-900/10',
+    avatar: '🐈',
+    imageUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800&auto=format&fit=crop',
+    unlocked: false,
+    isActive: false,
+    cost: 500
+  },
+  [RoleId.VISION]: {
+    id: RoleId.VISION,
+    name: '以太',
+    mbti: 'INFJ',
+    heroTitle: '梦境巡者',
+    skillName: '灵性洞察',
+    skillEffect: '感知人性',
+    // Added missing character properties
+    skillType: '洞察 / 先知',
+    level: 1,
+    exp: 0,
+    dimension: 'N',
+    dimensionFull: '直觉/先知 (NF)',
+    description: '周身环绕萤火的少女。',
+    quote: '我听见了你灵魂的振翅。',
+    tags: ['慈悲', '先知'],
+    color: 'text-purple-300 border-purple-400/40 bg-purple-900/10',
+    avatar: '🦋',
+    imageUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=800&auto=format&fit=crop',
+    unlocked: false,
+    isActive: false,
+    cost: 800
+  },
+  [RoleId.SPARK]: {
+    id: RoleId.SPARK,
+    name: '赛拉菲娜',
+    mbti: 'ESFP',
+    heroTitle: '祭典之魂',
+    skillName: '盛装共鸣',
+    skillEffect: '全场焦点',
+    // Added missing character properties
+    skillType: '表演 / 祭典',
+    level: 1,
+    exp: 0,
+    dimension: 'S',
+    dimensionFull: '实感/表演 (SP)',
+    description: '头戴狐狸面具的少女。',
+    quote: '生活是永不落幕的祭典！',
+    tags: ['主角', '华丽'],
+    color: 'text-fuchsia-300 border-fuchsia-400/40 bg-fuchsia-900/10',
+    avatar: '💃',
+    imageUrl: 'https://images.unsplash.com/photo-1578632738981-4330c709163a?q=80&w=800&auto=format&fit=crop',
+    unlocked: false,
+    isActive: false,
+    cost: 300
   }
 };
 
-export const INITIAL_STATS = {
-  E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0
+export const INITIAL_STATS: MBTIStats = { 
+  E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0,
+  energy: 1000 // 初始赠送能量
 };

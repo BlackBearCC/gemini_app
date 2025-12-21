@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { JournalEntry, RoleId } from '../types';
+import { JournalEntry, RoleId, Character } from '../types';
 import { analyzeJournalEntry } from '../services/geminiService';
 import RoleAvatar from './RoleAvatar';
 import { CHARACTERS } from '../constants';
@@ -7,9 +8,10 @@ import { CHARACTERS } from '../constants';
 interface Props {
   entries: JournalEntry[];
   addEntry: (entry: JournalEntry) => void;
+  characters: Record<string, Character>;
 }
 
-const JournalInterface: React.FC<Props> = ({ entries, addEntry }) => {
+const JournalInterface: React.FC<Props> = ({ entries, addEntry, characters }) => {
   const [text, setText] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'write'>('list');
@@ -20,21 +22,24 @@ const JournalInterface: React.FC<Props> = ({ entries, addEntry }) => {
     setIsAnalyzing(true);
     
     try {
-        const analysis = await analyzeJournalEntry(text);
+        const analysis = await analyzeJournalEntry(text, characters);
         
+        if (!analysis) throw new Error("Analysis failed");
+
         const newEntry: JournalEntry = {
             id: Date.now().toString(),
             timestamp: Date.now(),
             content: text,
             summary: analysis.summary,
             mood: analysis.mood,
-            responses: analysis.reactions.map((r, i) => ({
+            responses: analysis.reactions.map((r: any, i: number) => ({
                 id: `res-${Date.now()}-${i}`,
                 roleId: r.roleId as RoleId,
                 text: r.text,
                 timestamp: Date.now(),
                 likes: 0,
-                likedByUser: false
+                likedByUser: false,
+                isCheck: r.isCheck
             }))
         };
         
@@ -42,95 +47,99 @@ const JournalInterface: React.FC<Props> = ({ entries, addEntry }) => {
         setText('');
         setViewMode('list');
     } catch (e) {
-        alert("保存失败，请重试。");
+        alert("记忆同步中断，请检查神经连接。");
     } finally {
         setIsAnalyzing(false);
     }
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-dark p-4 pb-24 no-scrollbar">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500 tracking-tighter">
-            MEMORY_CORE
-        </h2>
-        <button 
-            onClick={() => setViewMode(viewMode === 'list' ? 'write' : 'list')}
-            className="px-4 py-1.5 text-xs font-mono border border-neon-green text-neon-green rounded hover:bg-neon-green/10 transition-colors"
-        >
-            {viewMode === 'list' ? '+ 记录' : '取消'}
-        </button>
-      </div>
+    <div className="h-full bg-dark relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-full h-32 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
 
-      {viewMode === 'write' ? (
-        <div className="space-y-4 animate-pulse-fast-once">
-            <textarea
-                className="w-full h-60 bg-card border border-gray-800 rounded-lg p-4 text-gray-300 focus:outline-none focus:border-gray-600 resize-none placeholder-gray-700"
-                placeholder="记录今天的碎片..."
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-            />
-            <button
-                onClick={handleSubmit}
-                disabled={isAnalyzing || !text.trim()}
-                className="w-full py-3 bg-gray-100 text-black font-bold rounded hover:bg-gray-300 transition-colors disabled:opacity-50"
+      <div className="h-full overflow-y-auto p-6 pb-32 no-scrollbar">
+          <header className="flex justify-between items-end mb-10">
+            <div>
+              <h2 className="text-3xl font-black italic tracking-tighter text-white uppercase">Memory_Core</h2>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-[1px] bg-neon-green"></div>
+                <span className="text-[10px] font-mono text-gray-600 uppercase tracking-widest">Total Fragments: {entries.length}</span>
+              </div>
+            </div>
+            <button 
+                onClick={() => setViewMode(viewMode === 'list' ? 'write' : 'list')}
+                className={`w-12 h-12 rounded-full flex items-center justify-center text-xl transition-all duration-300 ${viewMode === 'list' ? 'bg-white text-black shadow-lg scale-100' : 'bg-red-500/20 text-red-500 border border-red-500/30 rotate-45'}`}
             >
-                {isAnalyzing ? '正在处理数据...' : '保存记忆'}
+                +
             </button>
-        </div>
-      ) : (
-        <div className="relative border-l border-gray-800 ml-4 space-y-8">
-            {entries.length === 0 && (
-                <div className="ml-6 text-gray-600 italic text-sm">暂无记忆日志。</div>
-            )}
-            
-            {entries.sort((a,b) => b.timestamp - a.timestamp).map(entry => (
-                <div key={entry.id} className="ml-6 relative group">
-                    {/* Timeline Dot */}
-                    <div className="absolute -left-[29px] top-1 w-3 h-3 rounded-full bg-gray-800 border border-gray-600 group-hover:bg-neon-purple group-hover:border-neon-purple transition-colors"></div>
-                    
-                    <div className="flex flex-col space-y-2">
-                        <div className="flex justify-between items-baseline">
-                            <span className="text-xs font-mono text-gray-500">
-                                {new Date(entry.timestamp).toLocaleDateString('zh-CN')} • {new Date(entry.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                            </span>
-                            <span className="text-xs px-2 py-0.5 rounded bg-gray-900 text-gray-400 border border-gray-800">
-                                {entry.mood}
-                            </span>
-                        </div>
+          </header>
 
-                        <div className="text-gray-300 text-sm leading-relaxed bg-card p-3 rounded border border-gray-800/50">
-                            {entry.content}
-                        </div>
-
-                        <div className="text-xs text-gray-500 italic border-l-2 border-neon-purple pl-2 py-1">
-                            "{entry.summary}"
-                        </div>
-
-                        {/* Reactions */}
-                        <div className="flex flex-wrap gap-2 mt-2">
-                            {entry.responses.map(res => {
-                                const char = CHARACTERS[res.roleId];
-                                // Safely handle cases where roleId might be invalid or 'user'
-                                if (!char) return null;
-                                
-                                const charColorClass = (char.color || '').split(' ')[0] || 'text-gray-400';
-
-                                return (
-                                    <div key={res.id} className="flex items-center gap-2 bg-black/30 rounded-full pr-3 border border-gray-800">
-                                        <RoleAvatar roleId={res.roleId} size="sm" className="w-6 h-6 text-xs" />
-                                        <span className={`text-xs ${charColorClass}`}>
-                                            {res.text}
-                                        </span>
-                                    </div>
-                                );
-                            })}
+          {viewMode === 'write' ? (
+            <div className="space-y-6 animate-[fadeIn_0.4s_ease-out]">
+                <div className="relative">
+                    <div className="absolute top-4 left-4 text-[9px] font-mono text-gray-700 uppercase tracking-[0.3em]">Synapse_Input_Active</div>
+                    <textarea
+                        className="w-full h-80 bg-white/5 border border-white/10 rounded-3xl p-6 pt-12 text-gray-200 text-base focus:outline-none focus:border-neon-green/50 transition-all resize-none placeholder-gray-800 leading-relaxed shadow-inner"
+                        placeholder="在此输入你的碎片化意识..."
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        autoFocus
+                    />
+                </div>
+                <button
+                    onClick={handleSubmit}
+                    disabled={isAnalyzing || !text.trim()}
+                    className={`w-full py-5 rounded-3xl font-black text-sm uppercase tracking-[0.2em] transition-all relative overflow-hidden ${isAnalyzing ? 'bg-gray-800 text-gray-500' : 'bg-white text-black active:scale-95'}`}
+                >
+                    <span className="relative z-10">{isAnalyzing ? '正在同步神经反馈...' : '上传至记忆核心'}</span>
+                </button>
+            </div>
+          ) : (
+            <div className="space-y-12">
+                {entries.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-20 opacity-20">
+                        <div className="text-6xl mb-4">📓</div>
+                        <p className="text-xs font-mono tracking-widest">MEMORY BANK EMPTY</p>
+                    </div>
+                )}
+                {entries.sort((a,b) => b.timestamp - a.timestamp).map(entry => (
+                    <div key={entry.id} className="relative group animate-[fadeIn_0.5s_ease-out]">
+                        <div className="flex flex-col space-y-4">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                   <div className="px-2 py-0.5 rounded bg-neon-green/10 text-neon-green border border-neon-green/20 text-[9px] font-mono uppercase tracking-tighter">#{entry.mood}</div>
+                                   <span className="text-[10px] font-mono text-gray-700">{new Date(entry.timestamp).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                            <div className="text-gray-200 text-sm leading-relaxed bg-white/5 p-5 rounded-3xl border border-white/5 group-hover:border-white/10 transition-all">
+                                {entry.content}
+                            </div>
+                            <div className="relative p-4 rounded-2xl bg-black/40 border-l-4 border-neon-purple italic">
+                               <div className="text-[8px] font-mono text-neon-purple uppercase mb-1 opacity-50 tracking-widest">Neural Summary</div>
+                               <p className="text-xs text-gray-400">"{entry.summary}"</p>
+                            </div>
+                            <div className="flex flex-wrap gap-2 pt-2">
+                                {entry.responses.map(res => {
+                                    const char = CHARACTERS[res.roleId];
+                                    if (!char) return null;
+                                    return (
+                                        <div key={res.id} className={`flex flex-col gap-2 p-3 rounded-2xl border ${res.isCheck ? 'bg-white/[0.03] border-white/10' : 'bg-white/5 border-white/5'} transition-all`}>
+                                            <div className="flex items-center gap-2">
+                                                <RoleAvatar roleId={res.roleId} size="sm" className="w-5 h-5" />
+                                                <span className={`text-[8px] font-black uppercase tracking-tighter ${char.color.split(' ')[0]}`}>{char.name}</span>
+                                                {res.isCheck && <span className="text-[7px] font-mono text-gray-600">CHECK</span>}
+                                            </div>
+                                            <p className={`text-[11px] leading-tight ${res.isCheck ? 'italic text-gray-400' : 'text-gray-200'}`}>{res.text}</p>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
-                </div>
-            ))}
-        </div>
-      )}
+                ))}
+            </div>
+          )}
+      </div>
     </div>
   );
 };

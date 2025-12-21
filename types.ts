@@ -1,22 +1,46 @@
+
 export enum RoleId {
   USER = 'user',
-  SPARK = 'spark', // Extraversion
-  ECHO = 'echo',   // Introversion
-  VISION = 'vision', // Intuition
-  ROOT = 'root',   // Sensing
-  LOGIC = 'logic', // Thinking
-  HEART = 'heart', // Feeling
-  JUDGE = 'judge', // Judging
-  FLOW = 'flow'    // Perceiving
+  LOGIC = 'cypher',    // INTJ
+  CHRONO = 'chrono',   // INTP
+  ROOT = 'midas',      // ENTJ
+  FLOW = 'pax' ,       // ENTP
+  VISION = 'aether',   // INFJ
+  ECHO = 'nocturne',   // INFP
+  GOSSIP = 'aura',     // ENFJ
+  HEART = 'eros',      // ENFP
+  JUDGE = 'justicar',  // ISTJ
+  GARDEN = 'haven',    // ISFJ
+  STERN = 'sledge',    // ESTJ
+  BLOOM = 'nurture',   // ESFJ
+  BLADE = 'edge',      // ISTP
+  DUST = 'dusk',       // ISFP
+  STORM = 'volt',      // ESTP
+  SPARK = 'seraphina'  // ESFP
 }
 
 export interface Character {
   id: RoleId;
   name: string;
-  dimension: string; // e.g., "E - Extraversion"
+  mbti: string; 
+  heroTitle: string; 
+  skillName: string; 
+  skillEffect: string; 
+  // Added properties for game logic and visualization
+  skillType: string;
+  level: number;
+  exp: number;
+  dimension: string; // 如 "T", "F", "N", "S"
+  dimensionFull: string; // 如 "思考 (Thinking)", "直觉 (iNtuition)"
   description: string;
+  quote: string;
+  tags: string[];
   color: string;
-  avatar: string; // Emoji or placeholder char
+  avatar: string; 
+  imageUrl: string; 
+  unlocked: boolean;
+  isActive: boolean;
+  cost: number; // 觉醒所需意识能量
 }
 
 export interface Message {
@@ -26,6 +50,8 @@ export interface Message {
   timestamp: number;
   likes: number;
   likedByUser: boolean;
+  skillActivated?: string;
+  skillText?: string;
 }
 
 export interface JournalEntry {
@@ -34,22 +60,18 @@ export interface JournalEntry {
   content: string;
   summary: string;
   mood: string;
-  responses: Message[]; // Characters reacting to the journal
+  responses: Message[];
 }
 
 export interface MBTIStats {
-  E: number;
-  I: number;
-  N: number;
-  S: number;
-  T: number;
-  F: number;
-  J: number;
-  P: number;
+  E: number; I: number; N: number; S: number; 
+  T: number; F: number; J: number; P: number;
+  energy: number; // 用户拥有的总意识能量
 }
 
 export enum AppView {
   CHAT = 'chat',
   JOURNAL = 'journal',
-  PROFILE = 'profile'
+  PROFILE = 'profile', // 宿主属性
+  BAZAAR = 'bazaar'    // 灵感集市 (商城)
 }
