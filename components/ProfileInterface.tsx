@@ -10,106 +10,135 @@ interface Props {
   unlockCharacter: (id: RoleId) => void;
 }
 
-const ProfileInterface: React.FC<Props> = ({ stats, characters, toggleActive, unlockCharacter }) => {
-  // Fixed: Added type assertion to resolve 'unknown' type errors on Object.values
-  const characterList = (Object.values(characters) as Character[]).filter(c => c.id !== RoleId.USER);
-  const [selectedId, setSelectedId] = useState<RoleId>(RoleId.LOGIC);
-  const activeChar = characters[selectedId];
+const ProfileInterface: React.FC<Props> = ({ stats, characters, toggleActive }) => {
+  // 获取已解锁的人格列表 (仅限已解锁的)
+  const unlockedCharacters = (Object.values(characters) as Character[]).filter(c => c.id !== RoleId.USER && c.unlocked);
+  const [selectedId, setSelectedId] = useState<RoleId | null>(unlockedCharacters[0]?.id || null);
+
+  // 根据统计数据推导宿主的真实 MBTI 倾向
+  const calculateUserMBTI = () => {
+    const e_i = stats.E >= stats.I ? 'E' : 'I';
+    const n_s = stats.N >= stats.S ? 'N' : 'S';
+    const t_f = stats.T >= stats.F ? 'T' : 'F';
+    const j_p = stats.J >= stats.P ? 'J' : 'P';
+    
+    // 如果没有任何点赞，显示初始状态
+    const total = stats.E + stats.I + stats.N + stats.S + stats.T + stats.F + stats.J + stats.P;
+    if (total === 0) return "尚未观测";
+    
+    return `${e_i}${n_s}${t_f}${j_p}`;
+  };
+
+  const userMBTI = calculateUserMBTI();
+  const activeChar = selectedId ? characters[selectedId] : null;
 
   return (
-    <div className="h-full overflow-y-auto bg-dark p-6 pb-40 no-scrollbar">
-        <div className="mb-10 text-center">
-             <h2 className="text-3xl font-black text-white tracking-[0.2em] uppercase italic">涂鸦收藏馆</h2>
-             <p className="text-[10px] font-mono text-gray-600 mt-2 uppercase tracking-widest">Doodle_Cabinet // Fragments of Soul</p>
+    <div className="h-full overflow-y-auto bg-dark p-6 pb-40 no-scrollbar doodle-bg">
+        {/* 顶部：宿主镜像核心 */}
+        <div className="mb-12 text-center pt-8">
+             <div className="inline-block px-8 py-3 sketch-border border-4 border-doodle-highlight bg-black shadow-[10px_10px_0px_rgba(0,0,0,0.5)] rotate-1">
+                <span className="text-5xl font-black text-white italic tracking-[0.2em]">{userMBTI}</span>
+             </div>
+             <p className="text-[10px] font-mono text-doodle-highlight mt-6 uppercase tracking-[0.4em] font-black">宿主共鸣画像 // Echo_Profile</p>
         </div>
 
-        <div className="flex flex-col items-center">
-            {/* 选中的角色详情 */}
-            <div className="w-full flex flex-col items-center mb-10">
-                <div className="relative mb-6">
-                   <CharacterCard 
-                    character={activeChar} 
-                    isActive={true}
-                   />
-                   {!activeChar.unlocked && (
-                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center hand-drawn-border">
-                        <span className="text-4xl mb-4">🔒</span>
-                        <p className="text-sm font-bold text-white mb-4">该人格碎片尚未觉醒</p>
-                        <button 
-                          onClick={() => unlockCharacter(activeChar.id)}
-                          className="px-6 py-2 bg-doodle-highlight text-black rounded-full font-black text-xs uppercase shadow-[2px_2px_0px_#000]"
-                        >
-                          消耗意识能量觉醒
-                        </button>
-                     </div>
-                   )}
-                </div>
-
-                {activeChar.unlocked && (
-                   <div className="w-full max-w-[320px] flex gap-2">
-                      <button 
-                        onClick={() => toggleActive(activeChar.id)}
-                        className={`flex-1 py-3 rounded-2xl font-black text-xs uppercase transition-all shadow-[3px_3px_0px_#000] border border-black ${activeChar.isActive ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}
-                      >
-                        {activeChar.isActive ? '休眠此人格' : '激活此人格'}
-                      </button>
-                   </div>
-                )}
+        {/* 维度分配统计图 (进度条反映了用户对不同人格的认同) */}
+        <div className="mb-16 p-8 sketch-border-v1 border-2 border-white/10 bg-black/40 relative">
+            <div className="absolute -top-3 left-6 bg-dark px-3 text-[9px] font-mono text-gray-500 uppercase tracking-widest">Cognitive_Bias</div>
+            <div className="grid grid-cols-1 gap-8">
+                <StatBar label="社交偏向" left="E" right="I" leftVal={stats.E} rightVal={stats.I} />
+                <StatBar label="直觉实感" left="S" right="N" leftVal={stats.S} rightVal={stats.N} />
+                <StatBar label="理智情感" left="T" right="F" leftVal={stats.T} rightVal={stats.F} />
+                <StatBar label="秩序混乱" left="J" right="P" leftVal={stats.J} rightVal={stats.P} />
             </div>
+            <p className="mt-8 text-[9px] text-gray-600 italic text-center leading-relaxed font-serif">
+              * 画像根据你在群聊中对不同人格的“共鸣（点赞）”实时演变
+            </p>
+        </div>
 
-            {/* 网格选择器 */}
-            <div className="grid grid-cols-4 gap-3 w-full max-w-sm">
-                {/* Fixed: TypeScript now knows char is a Character due to characterList's type assertion */}
-                {characterList.map(char => (
+        {/* 已解锁的人格列表 (已拥有的意识碎片) */}
+        <div className="mb-8">
+            <h3 className="text-xs font-black text-white/40 uppercase tracking-[0.3em] mb-6 flex items-center gap-3 px-2">
+               已解锁的意识碎片
+               <div className="h-[1px] flex-1 bg-white/10"></div>
+            </h3>
+            
+            <div className="grid grid-cols-4 gap-4 mb-10">
+                {unlockedCharacters.map(char => (
                     <button 
                         key={char.id}
                         onClick={() => setSelectedId(char.id)}
                         className={`
-                            relative aspect-square rounded-xl flex items-center justify-center text-xl transition-all duration-300 border shadow-[2px_2px_0px_rgba(0,0,0,0.5)]
-                            ${selectedId === char.id ? `bg-white/10 ${char.color.split(' ')[1]} scale-110 z-10` : 'bg-black border-white/5 opacity-50 hover:opacity-100'}
-                            ${!char.unlocked ? 'grayscale saturate-0' : ''}
+                            relative aspect-square sketch-border border-2 transition-all duration-300 flex items-center justify-center text-2xl
+                            ${selectedId === char.id ? 'bg-doodle-highlight border-black scale-110 rotate-3 z-10 shadow-lg' : 'bg-black border-white/10 hover:border-white/40 opacity-50'}
                         `}
                     >
                         {char.avatar}
-                        <div className="absolute top-1 right-1 text-[7px] font-mono text-white/40">{char.mbti}</div>
-                        {char.isActive && char.unlocked && (
-                            <div className="absolute -bottom-1 w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(34,197,94,0.5)]"></div>
+                        {char.isActive && (
+                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-dark"></div>
                         )}
                     </button>
                 ))}
+                
+                {/* 占位提示，若解锁角色较少 */}
+                {unlockedCharacters.length < 8 && (
+                   <div className="aspect-square sketch-border border-2 border-dashed border-white/5 bg-white/[0.02] flex items-center justify-center opacity-20">
+                     <span className="text-[10px] font-mono">?</span>
+                   </div>
+                )}
             </div>
         </div>
 
-        {/* 宿主当前心理属性 */}
-        <div className="mt-12 p-6 bg-white/[0.03] hand-drawn-border border border-white/10">
-            <h3 className="text-[10px] font-black text-white/40 tracking-widest uppercase mb-6 flex items-center gap-2">
-               <span className="w-2 h-2 bg-doodle-highlight rounded-full"></span>
-               宿主当前心理基调
-            </h3>
-            <div className="grid grid-cols-2 gap-y-4 gap-x-8">
-                <StatBar label="E/I (外向/内向)" value={stats.E / (stats.E + stats.I || 1) * 100} left="E" right="I" />
-                <StatBar label="N/S (直觉/实感)" value={stats.N / (stats.N + stats.S || 1) * 100} left="N" right="S" />
-                <StatBar label="T/F (思考/情感)" value={stats.T / (stats.T + stats.F || 1) * 100} left="T" right="F" />
-                <StatBar label="J/P (判断/感知)" value={stats.J / (stats.J + stats.P || 1) * 100} left="J" right="P" />
+        {/* 选中人格详情面板 */}
+        {activeChar && (
+            <div className="animate-[fadeIn_0.3s_ease-out]">
+                <div className="relative mb-6 flex justify-center">
+                   <CharacterCard 
+                    character={activeChar} 
+                    isActive={true}
+                   />
+                </div>
+
+                <div className="w-full max-w-[320px] mx-auto flex flex-col gap-4">
+                    <button 
+                        onClick={() => toggleActive(activeChar.id)}
+                        className={`py-4 sketch-border-v3 font-black text-xs uppercase tracking-[0.2em] transition-all shadow-[6px_6px_0px_#000] border-2 border-black active:translate-y-1 active:shadow-none ${activeChar.isActive ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}
+                    >
+                        {activeChar.isActive ? '令其进入潜意识休眠' : '唤醒至当前意识层'}
+                    </button>
+                    <p className="text-[9px] text-center text-gray-600 font-mono">ID: {activeChar.id} // STAT: {activeChar.isActive ? 'ACTIVE' : 'IDLE'}</p>
+                </div>
             </div>
-        </div>
+        )}
     </div>
   );
 };
 
-const StatBar = ({ label, value, left, right }: { label: string, value: number, left: string, right: string }) => (
-    <div className="flex flex-col gap-1.5">
-        <div className="flex justify-between text-[8px] font-mono uppercase text-white/30">
-            <span>{label}</span>
+const StatBar = ({ label, left, right, leftVal, rightVal }: any) => {
+    const total = leftVal + rightVal || 1;
+    
+    return (
+        <div className="flex flex-col gap-2">
+            <div className="flex justify-between items-center px-1">
+                <span className="text-[10px] font-black text-white/20 uppercase tracking-tighter">{label}</span>
+                <span className="text-[8px] font-mono text-gray-700">{leftVal} : {rightVal}</span>
+            </div>
+            <div className="flex items-center gap-4">
+                <span className={`text-sm font-black w-4 text-center ${leftVal >= rightVal ? 'text-doodle-highlight' : 'text-white/20'}`}>{left}</span>
+                <div className="flex-1 h-2 bg-white/5 sketch-border-v3 relative overflow-hidden">
+                    <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-white/10 z-10"></div>
+                    <div 
+                        className="absolute top-0 bottom-0 bg-doodle-highlight transition-all duration-1000"
+                        style={{ 
+                            left: leftVal >= rightVal ? '50%' : `${50 - (rightVal/total * 50)}%`, 
+                            width: `${Math.abs(leftVal - rightVal) / total * 50}%` 
+                        }}
+                    ></div>
+                </div>
+                <span className={`text-sm font-black w-4 text-center ${rightVal > leftVal ? 'text-doodle-highlight' : 'text-white/20'}`}>{right}</span>
+            </div>
         </div>
-        <div className="h-1 bg-white/5 rounded-full overflow-hidden flex">
-            <div className="h-full bg-doodle-highlight/40" style={{ width: `${value}%` }}></div>
-        </div>
-        <div className="flex justify-between text-[7px] font-bold text-white/10">
-            <span>{left}</span>
-            <span>{right}</span>
-        </div>
-    </div>
-);
+    );
+};
 
 export default ProfileInterface;

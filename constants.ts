@@ -9,21 +9,20 @@ export const CHARACTERS: Record<string, Character> = {
     heroTitle: '时钟塔守夜人',
     skillName: '万物拆解',
     skillEffect: '看穿底层公式',
-    // Added missing character properties
     skillType: '架构 / 分析',
     level: 1,
     exp: 0,
     dimension: 'T',
     dimensionFull: '思考/独立 (NT)',
-    description: '银发少年，披着绘满星图的斗篷。',
+    description: '银发少年，披着绘满星图的斗篷。对逻辑有近乎强迫症的执着。',
     quote: '这世间没有巧合，只有公式。',
     tags: ['架构', '冷淡'],
     color: 'text-blue-300 border-blue-400/40 bg-blue-900/10',
     avatar: '⚙️',
     imageUrl: 'https://images.unsplash.com/photo-1618336753974-aae8e04506aa?q=80&w=800&auto=format&fit=crop',
-    unlocked: true,
-    isActive: true,
-    cost: 0
+    unlocked: false,
+    isActive: false,
+    cost: 500
   },
   [RoleId.FLOW]: {
     id: RoleId.FLOW,
@@ -32,21 +31,20 @@ export const CHARACTERS: Record<string, Character> = {
     heroTitle: '荒野诡辩者',
     skillName: '逻辑火花',
     skillEffect: '扰乱严肃空气',
-    // Added missing character properties
     skillType: '发散 / 诡辩',
     level: 1,
     exp: 0,
     dimension: 'N',
     dimensionFull: '直觉/发散 (NT)',
-    description: '头戴纸袋、四肢如枯枝般纤长的影魔。',
+    description: '头戴纸袋、四肢如枯枝般纤长的影魔。最喜欢拆穿伪善的逻辑。',
     quote: '规则是枷锁，我是钥匙。',
     tags: ['怪咖', '幽默'],
     color: 'text-lime-300 border-lime-400/40 bg-lime-900/10',
     avatar: '🎭',
     imageUrl: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?q=80&w=800&auto=format&fit=crop',
-    unlocked: true,
-    isActive: true,
-    cost: 0
+    unlocked: false,
+    isActive: false,
+    cost: 500
   },
   [RoleId.ECHO]: {
     id: RoleId.ECHO,
@@ -55,21 +53,86 @@ export const CHARACTERS: Record<string, Character> = {
     heroTitle: '提灯小妖',
     skillName: '情绪深潜',
     skillEffect: '挖掘潜意识美好',
-    // Added missing character properties
     skillType: '直觉 / 梦境',
     level: 1,
     exp: 0,
     dimension: 'F',
     dimensionFull: '情感/共情 (NF)',
-    description: '裹在披风里的小生灵。',
+    description: '裹在披风里的小生灵。它是你内心最柔软、最感性的回响。',
     quote: '在这里，你可以做任何梦。',
     tags: ['敏感', '艺术'],
     color: 'text-gray-300 border-gray-400/40 bg-gray-900/10',
     avatar: '🕯️',
     imageUrl: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=800&auto=format&fit=crop',
-    unlocked: true,
-    isActive: true,
-    cost: 0
+    unlocked: false,
+    isActive: false,
+    cost: 500
+  },
+  [RoleId.HEART]: {
+    id: RoleId.HEART,
+    name: '艾洛斯',
+    mbti: 'ENFP',
+    heroTitle: '极光追逐者',
+    skillName: '共鸣之火',
+    skillEffect: '点燃内心的希望',
+    skillType: '直觉 / 共鸣',
+    level: 1,
+    exp: 0,
+    dimension: 'F',
+    dimensionFull: '直觉/情感 (NF)',
+    description: '有着彩色虹膜的少年，总是看向远方。',
+    quote: '万物皆有裂痕，那是光照进来的地方。',
+    tags: ['理想', '自由'],
+    color: 'text-pink-300 border-pink-400/40 bg-pink-900/10',
+    avatar: '✨',
+    imageUrl: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=800&auto=format&fit=crop',
+    unlocked: false,
+    isActive: false,
+    cost: 500
+  },
+  [RoleId.STORM]: {
+    id: RoleId.STORM,
+    name: '沃尔特',
+    mbti: 'ESTP',
+    heroTitle: '雷鸣赛车手',
+    skillName: '即时反馈',
+    skillEffect: '打破现状',
+    skillType: '感觉 / 冲动',
+    level: 1,
+    exp: 0,
+    dimension: 'S',
+    dimensionFull: '实感/行动 (SP)',
+    description: '眼神犀利，穿着带电弧的皮夹克。',
+    quote: '犹豫就是败北，现在就做。',
+    tags: ['刺激', '速度'],
+    color: 'text-orange-300 border-orange-400/40 bg-orange-900/10',
+    avatar: '⚡',
+    imageUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=800&auto=format&fit=crop',
+    unlocked: false,
+    isActive: false,
+    cost: 500
+  },
+  [RoleId.JUDGE]: {
+    id: RoleId.JUDGE,
+    name: '贾斯提卡',
+    mbti: 'ISTJ',
+    heroTitle: '法典编纂者',
+    skillName: '秩序重组',
+    skillEffect: '恢复内心平静',
+    skillType: '感觉 / 秩序',
+    level: 1,
+    exp: 0,
+    dimension: 'S',
+    dimensionFull: '实感/判断 (SJ)',
+    description: '始终端坐的石像少年，负责整理记忆文件。',
+    quote: '凡事皆有定数，不可逾矩。',
+    tags: ['冷静', '纪律'],
+    color: 'text-teal-300 border-teal-400/40 bg-teal-900/10',
+    avatar: '📜',
+    imageUrl: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=800&auto=format&fit=crop',
+    unlocked: false,
+    isActive: false,
+    cost: 500
   },
   [RoleId.ROOT]: {
     id: RoleId.ROOT,
@@ -78,7 +141,6 @@ export const CHARACTERS: Record<string, Character> = {
     heroTitle: '交易所大使',
     skillName: '终极决策',
     skillEffect: '终结犹豫',
-    // Added missing character properties
     skillType: '指挥 / 决策',
     level: 1,
     exp: 0,
@@ -92,7 +154,7 @@ export const CHARACTERS: Record<string, Character> = {
     imageUrl: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800&auto=format&fit=crop',
     unlocked: false,
     isActive: false,
-    cost: 500
+    cost: 800
   },
   [RoleId.VISION]: {
     id: RoleId.VISION,
@@ -101,7 +163,6 @@ export const CHARACTERS: Record<string, Character> = {
     heroTitle: '梦境巡者',
     skillName: '灵性洞察',
     skillEffect: '感知人性',
-    // Added missing character properties
     skillType: '洞察 / 先知',
     level: 1,
     exp: 0,
@@ -116,33 +177,10 @@ export const CHARACTERS: Record<string, Character> = {
     unlocked: false,
     isActive: false,
     cost: 800
-  },
-  [RoleId.SPARK]: {
-    id: RoleId.SPARK,
-    name: '赛拉菲娜',
-    mbti: 'ESFP',
-    heroTitle: '祭典之魂',
-    skillName: '盛装共鸣',
-    skillEffect: '全场焦点',
-    // Added missing character properties
-    skillType: '表演 / 祭典',
-    level: 1,
-    exp: 0,
-    dimension: 'S',
-    dimensionFull: '实感/表演 (SP)',
-    description: '头戴狐狸面具的少女。',
-    quote: '生活是永不落幕的祭典！',
-    tags: ['主角', '华丽'],
-    color: 'text-fuchsia-300 border-fuchsia-400/40 bg-fuchsia-900/10',
-    avatar: '💃',
-    imageUrl: 'https://images.unsplash.com/photo-1578632738981-4330c709163a?q=80&w=800&auto=format&fit=crop',
-    unlocked: false,
-    isActive: false,
-    cost: 300
   }
 };
 
 export const INITIAL_STATS: MBTIStats = { 
   E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0,
-  energy: 1000 // 初始赠送能量
+  energy: 200 
 };

@@ -19,10 +19,10 @@ const CharacterCard: React.FC<Props> = ({ character, isActive, onClick }) => {
     <div 
       onClick={onClick}
       className={`
-        relative w-full aspect-[3/4.5] max-w-[320px] overflow-hidden cursor-pointer
+        relative w-full aspect-[3/4.5] max-w-[280px] overflow-hidden cursor-pointer
         transition-all duration-[1200ms] cubic-bezier(0.2, 1, 0.3, 1) transform
         ${isActive ? 'scale-100 rotate-0 translate-y-0 opacity-100' : 'scale-90 rotate-1 translate-y-4 opacity-30 grayscale'}
-        hand-drawn-border bg-dark border-4 ${borderColor}
+        sketch-border border-4 ${borderColor} bg-dark
       `}
     >
       {/* 角色立绘主体 */}
@@ -30,47 +30,42 @@ const CharacterCard: React.FC<Props> = ({ character, isActive, onClick }) => {
           <img 
             src={character.imageUrl} 
             alt={character.name} 
-            className="w-full h-full object-cover transition-transform duration-[4000ms] group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-[4000ms]"
           />
-          {/* 水彩渲染层 */}
-          <div className="absolute inset-0 bg-blue-900/10 mix-blend-overlay"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
       </div>
 
-      {/* 装饰边框 - 模拟老旧画框 */}
-      <div className="absolute inset-4 border border-white/10 hand-drawn-border pointer-events-none"></div>
-
       {/* 信息展示层 */}
-      <div className="absolute inset-0 flex flex-col p-8 justify-between z-10">
+      <div className="absolute inset-0 flex flex-col p-6 justify-between z-10">
         <div className="flex justify-between items-start">
            <div className="flex flex-col">
-              <span className={`text-[10px] font-black uppercase tracking-[0.3em] opacity-80 ${colorBase}`}>
-                 {character.skillType.split(' / ')[0]}
+              <span className={`text-[9px] font-black uppercase tracking-[0.2em] opacity-80 ${colorBase}`}>
+                 {character.mbti}
               </span>
-              <span className="text-white/40 text-[8px] font-mono mt-0.5 tracking-[0.4em] uppercase">Fragment.v01</span>
+              <span className="text-white/40 text-[7px] font-mono mt-0.5 tracking-[0.3em] uppercase">Fragment_0x{character.id.slice(-2)}</span>
            </div>
-           <div className="w-14 h-14 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-3xl shadow-2xl border border-white/5 animate-sway">
+           <div className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-2xl shadow-2xl border border-white/10">
              {character.avatar}
            </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
             <div>
-                <h3 className="text-5xl font-black italic tracking-tighter text-white drop-shadow-2xl">
+                <h3 className="text-3xl font-black italic tracking-tighter text-white drop-shadow-2xl leading-none">
                     {character.name}
                 </h3>
-                <p className="text-[12px] font-medium text-white/50 uppercase tracking-[0.2em] mt-1 border-l-2 border-white/20 pl-2">
+                <p className="text-[9px] font-medium text-white/50 uppercase tracking-[0.15em] mt-1 border-l-2 border-white/20 pl-2">
                     {character.heroTitle}
                 </p>
             </div>
 
             {/* 极简技能指示 */}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
                <div className="flex justify-between items-end">
-                  <div className={`text-[9px] font-bold uppercase tracking-widest ${colorBase}`}>
+                  <div className={`text-[8px] font-bold uppercase tracking-widest ${colorBase}`}>
                     {character.skillName}
                   </div>
-                  <div className="text-[7px] font-mono text-white/20 tracking-tighter">NODE_LV.{character.level}</div>
+                  <div className="text-[6px] font-mono text-white/20 tracking-tighter">LV.{character.level}</div>
                </div>
                <div className="h-0.5 w-full bg-white/5 rounded-full overflow-hidden">
                   <div 
@@ -80,25 +75,20 @@ const CharacterCard: React.FC<Props> = ({ character, isActive, onClick }) => {
                </div>
             </div>
 
-            {/* 名言 - 吉卜力对白感 */}
-            <p className="text-[14px] text-white/80 leading-relaxed italic font-serif opacity-90">
+            {/* 名言 */}
+            <p className="text-[12px] text-white/80 leading-relaxed italic font-serif opacity-90 line-clamp-2">
               「{character.quote}」
             </p>
 
             {/* 标签 */}
-            <div className="flex flex-wrap gap-2 pt-2">
-              {character.tags.map(tag => (
-                <span key={tag} className="text-[8px] font-bold px-2 py-0.5 rounded-sm bg-black/60 text-white/40 border border-white/5 uppercase">
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {character.tags.slice(0, 2).map(tag => (
+                <span key={tag} className="text-[7px] font-bold px-1.5 py-0.5 bg-black/80 text-white/40 border border-white/5 uppercase">
                   #{tag}
                 </span>
               ))}
             </div>
         </div>
-      </div>
-      
-      {/* 底部纹理微光 */}
-      <div className="absolute bottom-4 right-6 opacity-10 text-[6px] font-mono tracking-widest text-white">
-        GHIBLI_RESONANCE_SYSTEM_2025
       </div>
     </div>
   );

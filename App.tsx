@@ -47,15 +47,53 @@ const App: React.FC = () => {
     } catch (e) { console.error(e); }
   }, [stats, messages, entries, characters]);
 
+  // 1+3 初始内阁解锁逻辑
   const handleInitialSelect = (roleId: RoleId) => {
-    setCharacters(prev => ({
-        ...prev,
-        [roleId]: { ...prev[roleId], unlocked: true, isActive: true }
-    }));
-    setStats(prev => ({ ...prev, energy: prev.energy + 500 })); // 契约奖励
+    const newChars = { ...characters };
+    
+    // 1. 解锁主选角色
+    newChars[roleId] = { ...newChars[roleId], unlocked: true, isActive: true };
+
+    // 2. 寻找 3 个配套角色 (简单的启发式算法)
+    const allIds = Object.keys(newChars) as RoleId[];
+    const candidates = allIds.filter(id => id !== roleId && id !== RoleId.USER);
+    
+    // 尽量挑选不同阵营的角色
+    const selection: RoleId[] = [];
+    
+    // 尝试找一个对立面 (影子)
+    const primaryMBTI = characters[roleId].mbti;
+    const oppositeMBTI = primaryMBTI.split('').map(c => {
+        if (c === 'I') return 'E';
+        if (c === 'E') return 'I';
+        if (c === 'N') return 'S';
+        if (c === 'S') return 'N';
+        if (c === 'T') return 'F';
+        if (c === 'F') return 'T';
+        if (c === 'J') return 'P';
+        if (c === 'P') return 'J';
+        return c;
+    }).join('');
+
+    const shadow = candidates.find(id => characters[id].mbti === oppositeMBTI);
+    if (shadow) selection.push(shadow);
+
+    // 填充剩下的直到 3 个
+    candidates.sort(() => Math.random() - 0.5).forEach(id => {
+        if (selection.length < 3 && !selection.includes(id)) {
+            selection.push(id);
+        }
+    });
+
+    selection.forEach(id => {
+        newChars[id] = { ...newChars[id], unlocked: true, isActive: true };
+    });
+
+    setCharacters(newChars);
+    setStats(prev => ({ ...prev, energy: prev.energy + 300 })); 
     setShowSelection(false);
     localStorage.setItem('doodle_selection_v3', 'true');
-    setShowOnboarding(true); // 选择完角色后再看介绍
+    setShowOnboarding(true);
   };
 
   const handleUnlock = (id: RoleId) => {
@@ -81,11 +119,17 @@ const App: React.FC = () => {
         if (m.id === msgId && !m.likedByUser) {
             const char = characters[roleId];
             if (char) {
-                const dim = char.dimension as keyof MBTIStats;
+                // 根据点赞更新宿主画像
+                const mbti = char.mbti;
+                const update: any = {};
+                mbti.split('').forEach(letter => {
+                    update[letter] = (stats[letter as keyof MBTIStats] || 0) + 1;
+                });
+
                 setStats(curr => ({
                     ...curr,
-                    [dim]: (curr[dim] || 0) + 1,
-                    energy: curr.energy + 10
+                    ...update,
+                    energy: curr.energy + 20
                 }));
             }
             return { ...m, likedByUser: true, likes: m.likes + 1 };
@@ -103,7 +147,7 @@ const App: React.FC = () => {
         <h1 className="font-black italic text-2xl tracking-tighter text-white">涂鸦 <span className="text-[10px] font-mono opacity-20 ml-1">MIND_0</span></h1>
         <div className="flex items-center gap-3">
             <div className="text-[10px] font-black text-doodle-highlight flex items-center gap-1 bg-white/5 px-3 py-1.5 rounded-xl sketch-border border border-white/10">
-                <span className="opacity-40 font-mono text-[8px]">E:</span> {stats.energy}
+                <span className="opacity-40 font-mono text-[8px]">⚡:</span> {stats.energy}
             </div>
         </div>
       </div>
