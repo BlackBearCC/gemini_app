@@ -61,8 +61,12 @@ const CharacterSelection: React.FC<Props> = ({ onSelect }) => {
                 <p className="text-[8px] text-white/30 uppercase tracking-widest font-mono leading-tight">{char.heroTitle}</p>
               </div>
 
-              <div className="absolute top-4 right-4 text-3xl opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all">
-                 {char.avatar}
+              <div className="absolute top-4 right-4 w-12 h-12 opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all">
+                 {char.generatedAvatar ? (
+                   <img src={char.generatedAvatar} alt="" className="w-full h-full object-cover grayscale brightness-200 contrast-150" />
+                 ) : (
+                   <span className="text-3xl">{char.avatar}</span>
+                 )}
               </div>
             </div>
           );

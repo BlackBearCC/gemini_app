@@ -64,12 +64,13 @@ const BazaarInterface: React.FC<Props> = ({ characters, stats, onUnlock, onToggl
                       ${deco.rotation} hover:rotate-0 hover:scale-105 active:scale-95
                     `}
                   >
-                    {/* 背景乱涂效果 */}
-                    <div className="absolute -top-2 -right-2 w-8 h-8 opacity-0 group-hover:opacity-20 transition-opacity pointer-events-none text-white text-4xl">⌇</div>
-
                     <div className="flex justify-between items-center mb-5">
-                      <div className="w-10 h-10 flex items-center justify-center text-3xl bg-black/40 sketch-border-v1 border border-white/10">
-                        {char.avatar}
+                      <div className="w-10 h-10 flex items-center justify-center bg-black/40 sketch-border-v1 border border-white/10 overflow-hidden">
+                        {char.generatedAvatar ? (
+                           <img src={char.generatedAvatar} alt={char.name} className="w-full h-full object-cover scale-110 grayscale" />
+                        ) : (
+                           <span className="text-2xl">{char.avatar}</span>
+                        )}
                       </div>
                       <div className="text-[10px] font-mono font-black px-2 py-1 bg-white/20 text-white/60 sketch-border-v2 uppercase">
                         {char.mbti}

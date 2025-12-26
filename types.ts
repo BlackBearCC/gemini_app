@@ -26,21 +26,21 @@ export interface Character {
   heroTitle: string; 
   skillName: string; 
   skillEffect: string; 
-  // Added properties for game logic and visualization
   skillType: string;
   level: number;
   exp: number;
-  dimension: string; // 如 "T", "F", "N", "S"
-  dimensionFull: string; // 如 "思考 (Thinking)", "直觉 (iNtuition)"
+  dimension: string;
+  dimensionFull: string;
   description: string;
   quote: string;
   tags: string[];
   color: string;
   avatar: string; 
   imageUrl: string; 
+  generatedAvatar?: string; // 新增：存储 AI 生成的 Base64 涂鸦头像
   unlocked: boolean;
   isActive: boolean;
-  cost: number; // 觉醒所需意识能量
+  cost: number;
 }
 
 export interface Message {
@@ -52,6 +52,7 @@ export interface Message {
   likedByUser: boolean;
   skillActivated?: string;
   skillText?: string;
+  isCheck?: boolean;
 }
 
 export interface JournalEntry {
@@ -66,12 +67,12 @@ export interface JournalEntry {
 export interface MBTIStats {
   E: number; I: number; N: number; S: number; 
   T: number; F: number; J: number; P: number;
-  energy: number; // 用户拥有的总意识能量
+  energy: number;
 }
 
 export enum AppView {
   CHAT = 'chat',
   JOURNAL = 'journal',
-  PROFILE = 'profile', // 宿主属性
-  BAZAAR = 'bazaar'    // 灵感集市 (商城)
+  PROFILE = 'profile',
+  BAZAAR = 'bazaar'
 }

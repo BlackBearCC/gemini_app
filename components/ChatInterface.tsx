@@ -1,85 +1,53 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Message, RoleId, Character } from '../types';
-import { generateChatResponse } from '../services/geminiService';
+import { UI_ICONS } from '../constants';
 
 interface Props {
   messages: Message[];
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  onSendMessage: (text: string) => void;
   onLike: (msgId: string, roleId: RoleId) => void;
   characters: Record<string, Character>;
+  isTyping: boolean;
 }
 
-const ChatInterface: React.FC<Props> = ({ messages, setMessages, onLike, characters }) => {
+const ChatInterface: React.FC<Props> = ({ messages, onSendMessage, onLike, characters, isTyping }) => {
   const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  const [lastLikedId, setLastLikedId] = useState<string | null>(null); // 用于触发动画
+  
+  // 移除自动滚动，避免新消息打断用户阅读历史
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isFirstLoad = useRef(true);
 
   const activeChars = (Object.values(characters) as Character[]).filter(c => c.isActive && c.unlocked);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  useEffect(() => {
+    if (isFirstLoad.current && messages.length > 0) {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+        isFirstLoad.current = false;
+    }
+  }, [messages]);
+
+  const handleSend = () => {
+    if (!input.trim() || isTyping) return;
+    onSendMessage(input.trim());
+    setInput('');
+    // 发送消息时才强制滚动到底部
+    setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, isTyping]);
-
-  const handleSend = async () => {
-    if (!input.trim() || isTyping) return;
-
-    const userMsgText = input.trim();
-    const userMsg: Message = {
-        id: Date.now().toString(),
-        roleId: RoleId.USER,
-        text: userMsgText,
-        timestamp: Date.now(),
-        likes: 0,
-        likedByUser: false
-    };
-
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
-    setIsTyping(true);
-
-    try {
-        const activeCharsMap = Object.fromEntries(activeChars.map(c => [c.id, c]));
-        // 强制群聊：提示词已经要求至少4位
-        const responses = await generateChatResponse(messages, activeCharsMap, userMsgText);
-        setIsTyping(false);
-
-        if (responses.length > 0) {
-            responses.forEach((resp, index) => {
-                setTimeout(() => {
-                    const botMsg: Message = {
-                        id: (Date.now() + index).toString(),
-                        roleId: resp.roleId as RoleId,
-                        text: resp.text || '',
-                        timestamp: Date.now(),
-                        likes: 0,
-                        likedByUser: false,
-                        skillActivated: resp.skillActivated,
-                        skillText: resp.skillText
-                    };
-                    setMessages(prev => [...prev, botMsg]);
-                }, 600 * (index + 1));
-            });
-        }
-    } catch (e) {
-        setIsTyping(false);
-    }
+  const handleLikeWithEffect = (msgId: string, roleId: RoleId) => {
+    setLastLikedId(msgId);
+    onLike(msgId, roleId);
+    setTimeout(() => setLastLikedId(null), 500);
   };
 
   const getDoodleStyles = (seed: string, isMe: boolean) => {
-    const num = parseInt(seed.slice(-3)) || 0;
-    // 随机旋转度数，增加线条的随机感
+    const num = parseInt(seed.replace(/\D/g, '').slice(-3)) || 0;
     const rotates = isMe 
       ? ['rotate-1', 'rotate-[0.5deg]', 'rotate-[1.2deg]', 'rotate-0']
       : ['-rotate-1', '-rotate-[1.5deg]', '-rotate-[0.8deg]', 'rotate-[1deg]'];
-    
-    // 随机边框变体 (在 index.html 中定义的类)
     const borders = ['sketch-border', 'sketch-border-v1', 'sketch-border-v2', 'sketch-border-v3'];
-    
     return {
       rotation: rotates[num % rotates.length],
       borderVariant: borders[num % borders.length]
@@ -91,28 +59,47 @@ const ChatInterface: React.FC<Props> = ({ messages, setMessages, onLike, charact
       <div className="flex-1 overflow-y-auto px-4 pt-10 pb-48 no-scrollbar scroll-smooth">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full opacity-20 text-center px-10">
-            <div className="text-6xl mb-4">🖍️</div>
+            <div className="w-24 h-24 mb-6">
+                <img src={UI_ICONS.NAV_CHAT} alt="Empty" className="w-full h-full object-contain grayscale" />
+            </div>
             <p className="text-xs font-mono uppercase tracking-[0.3em] leading-relaxed">
-              脑内剧场已就绪<br/>输入任何念头，召唤你的精神碎片
+              脑内剧场已就绪<br/>输入任何念头，或者在这里涂鸦
             </p>
           </div>
         )}
 
         {messages.map((msg) => {
             const isMe = msg.roleId === RoleId.USER;
+            const isEvent = msg.id.startsWith('event-');
             const char = characters[msg.roleId];
             const { rotation, borderVariant } = getDoodleStyles(msg.id, isMe);
+            const isJustLiked = lastLikedId === msg.id;
             
-            const name = isMe ? "意识宿主" : char?.name;
-            const avatar = isMe ? "🧠" : char?.avatar;
-            const colorClass = isMe ? "text-doodle-pencil" : char?.color.split(' ')[0];
+            const name = isMe ? (isEvent ? "系统" : "宿主") : char?.name;
+            const colorClass = isMe ? (isEvent ? "text-gray-500" : "text-doodle-pencil") : char?.color.split(' ')[0];
+
+            if (isEvent) {
+                return (
+                    <div key={msg.id} className="flex justify-center my-6 animate-[fadeIn_0.5s_ease-out]">
+                        <div className="px-4 py-1 rounded-full bg-white/5 border border-white/5 text-[10px] font-mono text-gray-500 italic">
+                            {msg.text}
+                        </div>
+                    </div>
+                );
+            }
 
             return (
                 <div key={msg.id} className={`flex flex-col mb-12 ${isMe ? 'items-end' : 'items-start'} w-full animate-[fadeIn_0.3s_ease-out]`}>
                     <div className={`flex gap-3 max-w-[92%] ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-                        {/* 身份图标 - 手绘方块感 */}
-                        <div className={`w-10 h-10 shrink-0 flex items-center justify-center text-xl bg-black border-2 border-white/20 sketch-border shadow-[2px_2px_0px_rgba(255,255,255,0.1)]`}>
-                           {avatar}
+                        {/* 头像显示逻辑更新：统一使用 SVG 资源 */}
+                        <div className={`w-10 h-10 shrink-0 flex items-center justify-center text-xl bg-black border-2 border-white/20 sketch-border shadow-[2px_2px_0px_rgba(255,255,255,0.1)] overflow-hidden`}>
+                           {isMe ? (
+                             <img src={isEvent ? UI_ICONS.SYSTEM_AVATAR : UI_ICONS.USER_AVATAR} alt="User" className="w-full h-full object-cover scale-110" />
+                           ) : (
+                             char?.generatedAvatar ? (
+                               <img src={char.generatedAvatar} alt={char.name} className="w-full h-full object-cover scale-110" />
+                             ) : char?.avatar
+                           )}
                         </div>
                         
                         <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
@@ -128,33 +115,36 @@ const ChatInterface: React.FC<Props> = ({ messages, setMessages, onLike, charact
                             </div>
                             
                             <div className={`
-                                px-5 py-3 text-[15px] leading-relaxed relative
+                                px-5 py-3 text-[15px] leading-relaxed relative transition-all duration-300 overflow-visible
                                 ${isMe 
                                     ? `host-bubble ${rotation} ${borderVariant} shadow-[6px_6px_0px_#1a1a1a]` 
                                     : `persona-bubble ${rotation} ${borderVariant} shadow-[4px_4px_0px_rgba(255,255,255,0.05)]`}
+                                ${isJustLiked ? 'animate-resonance ring-4 ring-doodle-highlight/50' : ''}
                             `}>
                                 {msg.text}
                                 
                                 {!isMe && (
-                                    <button 
-                                      onClick={() => onLike(msg.id, msg.roleId)} 
-                                      className={`absolute -bottom-3 -right-3 p-2 rounded-full bg-black border-2 border-white/20 transition-all active:scale-90 ${msg.likedByUser ? 'text-red-500 border-red-500/40' : 'text-gray-700 hover:text-white/40'}`}
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" /></svg>
-                                    </button>
+                                    <div className="absolute -bottom-2 -right-2 z-50">
+                                        {isJustLiked && <div className="absolute inset-0 bg-doodle-highlight rounded-full animate-ping-fast"></div>}
+                                        <button 
+                                          onClick={() => handleLikeWithEffect(msg.id, msg.roleId)} 
+                                          className={`relative z-10 p-2 rounded-full bg-black border-2 border-white/20 transition-all active:scale-90 shadow-lg ${msg.likedByUser ? 'text-red-500 border-red-500/40 scale-110 rotate-12' : 'text-gray-700 hover:text-white/40'}`}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" /></svg>
+                                        </button>
+                                    </div>
                                 )}
                             </div>
 
-                            {/* 维度注解 - 像手写在旁边的笔记 */}
                             {!isMe && char && (
-                                <div className="mt-3 flex items-center gap-2 opacity-30 group">
+                                <div className="mt-3 flex items-center gap-2 opacity-30">
                                     <span className="text-[14px] font-serif italic text-doodle-highlight">→</span>
-                                    <span className="text-[9px] font-mono uppercase tracking-[0.2em] font-bold group-hover:text-white transition-colors">{char.dimensionFull}</span>
+                                    <span className="text-[9px] font-mono uppercase tracking-[0.2em] font-bold">{char.dimensionFull}</span>
                                 </div>
                             )}
 
                             {msg.skillActivated && (
-                                <div className="mt-3 px-3 py-1 bg-red-900/10 border-l-2 border-red-500/30 text-[10px] font-mono text-red-400/80 italic flex items-center gap-2">
+                                <div className="mt-3 px-3 py-1 bg-red-900/10 border-l-2 border-red-500/30 text-[10px] font-mono text-red-400/80 italic flex items-center gap-2 animate-bounce">
                                     <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
                                     {msg.skillActivated}: {msg.skillText}
                                 </div>
@@ -166,15 +156,16 @@ const ChatInterface: React.FC<Props> = ({ messages, setMessages, onLike, charact
         })}
         
         {isTyping && (
-             <div className="flex gap-3 mb-8 opacity-20">
-                <div className="w-10 h-10 sketch-border border-2 border-white/20 bg-white/5"></div>
-                <div className="h-10 w-48 bg-white/5 sketch-border-v1 animate-pulse"></div>
+             <div className="flex gap-3 mb-8 animate-pulse">
+                <div className="w-10 h-10 sketch-border border-2 border-white/10 bg-white/5"></div>
+                <div className="h-10 w-32 bg-white/5 sketch-border-v1 border border-white/5 flex items-center justify-center">
+                    <span className="text-[8px] font-mono text-white/20 tracking-widest">意识写入中...</span>
+                </div>
              </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 输入框区域 */}
       <div className="absolute bottom-28 left-0 right-0 px-6 z-40">
         <div className="max-w-2xl mx-auto flex flex-col gap-3">
             <div className="flex gap-3 justify-center">
@@ -190,7 +181,7 @@ const ChatInterface: React.FC<Props> = ({ messages, setMessages, onLike, charact
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                    placeholder="在潜意识里涂鸦..."
+                    placeholder="在此输入念头..."
                     className="flex-1 bg-transparent py-4 px-4 text-[16px] text-white focus:outline-none placeholder-gray-800 font-serif font-bold"
                 />
                 <button 

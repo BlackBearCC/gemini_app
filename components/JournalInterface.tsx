@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { JournalEntry, RoleId, Character } from '../types';
 import { analyzeJournalEntry } from '../services/geminiService';
 import RoleAvatar from './RoleAvatar';
-import { CHARACTERS } from '../constants';
+import { CHARACTERS, UI_ICONS } from '../constants';
 
 interface Props {
   entries: JournalEntry[];
@@ -68,9 +68,9 @@ const JournalInterface: React.FC<Props> = ({ entries, addEntry, characters }) =>
             </div>
             <button 
                 onClick={() => setViewMode(viewMode === 'list' ? 'write' : 'list')}
-                className={`w-12 h-12 rounded-full flex items-center justify-center text-xl transition-all duration-300 ${viewMode === 'list' ? 'bg-white text-black shadow-lg scale-100' : 'bg-red-500/20 text-red-500 border border-red-500/30 rotate-45'}`}
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${viewMode === 'list' ? 'bg-white text-black shadow-lg scale-100' : 'bg-red-500/20 text-red-500 border border-red-500/30 rotate-45'}`}
             >
-                +
+                <img src={UI_ICONS.ADD} className={`w-6 h-6 ${viewMode === 'list' ? 'invert' : ''}`} alt="Toggle" />
             </button>
           </header>
 
@@ -98,7 +98,9 @@ const JournalInterface: React.FC<Props> = ({ entries, addEntry, characters }) =>
             <div className="space-y-12">
                 {entries.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-20 opacity-20">
-                        <div className="text-6xl mb-4">📓</div>
+                        <div className="w-24 h-24 mb-6">
+                           <img src={UI_ICONS.NAV_JOURNAL} alt="Empty" className="w-full h-full object-contain grayscale" />
+                        </div>
                         <p className="text-xs font-mono tracking-widest">MEMORY BANK EMPTY</p>
                     </div>
                 )}
